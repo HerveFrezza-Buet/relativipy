@@ -10,9 +10,11 @@ The space considered in relativipy is 2D, so the spacetime is 3D... it can be vi
 
 The rendering is based on [glumpy](https://glumpy.github.io/) by Nicolas Rougier.
 
+![Spacetime view of the "train" experiment](./snapshots/train.jpg)
+
 ## Installation
 
-This projects is based on [glumpy](https://glumpy.github.io/). On ubuntu, you may need to install glfw with glumpy.
+This project is based on [glumpy](https://glumpy.github.io/). On ubuntu, you may need to install glfw with glumpy.
 
 ```
 sudo apt install libglfw3
@@ -62,7 +64,7 @@ Thanks to glumpy, you can benefit from many extra features. For example, you can
 python3 outer-space.py --record
 ```
 
-Ok... for an empty space, this is not so exciting. Have a look at the `outer-space.py` code if you intend to use the library for building up your own experiments. Then read and execute the examples in the `doc` section... they am at providing you with a good understanding of relativipy possibilities and how to use them.
+Ok... for an empty space, this is not so exciting. Have a look at the `outer-space.py` code if you intend to use the library for building up your own experiments. Then read and execute the examples in the `doc` section... they aim at providing you with a good understanding of relativipy possibilities and how to use them.
 
 If you just want to run nice demos, explore de `demo` section and run the scripts.
 
