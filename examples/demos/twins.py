@@ -2,14 +2,14 @@ import relativipy as rel
 import numpy as np
 
 
-universe = rel.scene.Universe(screen_size = (3, 10), width=800, height=450)
+universe = rel.scene.Universe(screen_size = (3, 15), width=800, height=450)
 universe.spacetime_mode   = False
 universe.show_prism_lines = False
-universe.t_max            = 10
+universe.t_max            = 15
 
 human_size           = 1
 ground_level         = -human_size/2
-travel_speed         = universe.C*.9
+travel_speed         = universe.C*.75
 travel_go_duration   = 2
 travel_back_duration = travel_go_duration
 
@@ -58,18 +58,46 @@ turn_back_evts.slice_cross_radius = .5
 end_evts.slice_cross_radius       = .5
 
 view_mode = 'herve'
-
-def set_view_at_start():
-    print('start')
-    
-def set_view_at_U_turn():
-    print('U turn')
-    
-def set_view_at_end():
-    print('end')
-    
-universe += rel.objects.Notifier(start_xyt_R0, et_view_at_start)
+olivier_speed = (0, travel_speed)
 
 
+def set_view_at_start(t):
+    global olivier_speed
+    olivier_speed = (0, travel_speed)
+    if view_mode == 'olivier':
+        print(olivier_speed)
+        universe.set_view_speed(olivier_speed)
+    
+def set_view_at_U_turn(t):
+    global olivier_speed
+    olivier_speed = (0, -travel_speed)
+    if view_mode == 'olivier':
+        print(olivier_speed)
+        universe.set_view_speed(olivier_speed)
+    
+def set_view_at_end(t):
+    global olivier_speed
+    olivier_speed = (0, 0)
+    if view_mode == 'olivier':
+        print(olivier_speed)
+        universe.set_view_speed(None)
+    
+universe += rel.objects.Notifier(None,              universe.C, (0, 0,                     0), set_view_at_start )
+universe += rel.objects.Notifier((0, travel_speed), universe.C, (0, 0, travel_back_duration ), set_view_at_U_turn)
+universe += rel.objects.Notifier(None,              universe.C, (0, 0, 2 * turn_back_date_R0), set_view_at_end   )
+
+
+def on_change_view():
+    global view_mode
+    if view_mode == 'herve':
+        view_mode = 'olivier'
+        universe.set_view_speed(olivier_speed)
+    else:
+        view_mode = 'herve'
+        universe.set_view_speed(None)
+
+universe.on_key_pressed(' ', on_change_view)
+print('press <space> to change the reference frame')
+print()
 
 universe.run()
