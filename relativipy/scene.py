@@ -101,7 +101,7 @@ class Universe:
         self.ct_target += dct;
         
         self.ct += dct;
-        self.ct += self.alpha(self.ct_target - self.ct)
+        self.ct += self.alpha_time * (self.ct_target - self.ct)
         
         if self.spacetime_mode:
             self.draw_spacetime()
@@ -129,7 +129,8 @@ class Universe:
         self.ct        = 0
         self.ct_target = 0
         self.t_max  = 5
-        self.alpha = .1
+        self.alpha_speed = .1
+        self.alpha_time  = .1
         self.screen_size = screen_size
         self.prisms = []
         self.points = []
@@ -258,6 +259,11 @@ class Universe:
             self.speed = np.array([speed[0], speed[1]], dtype=np.float32)
         else:
             self.speed = np.array([0., 0], dtype=np.float32)
+
+    def set_date(self, t):
+        self.ct_target = self.C * t
+        
+            
     def __iadd__(self, obj):
         if isinstance(obj, objects.Prism):
             self.add_persistant(obj) # This first, from mother to terminal classes.
@@ -381,7 +387,7 @@ class Universe:
             self.s_axes['pos'] = vertices
             self.t_axes['pos'] = vertices
         
-        self.current_speed += self.alpha * (self.speed - self.current_speed)
+        self.current_speed += self.alpha_speed * (self.speed - self.current_speed)
         self.lorentz    = lorentz.direct(self.current_speed, self.C)
 
         if self.adjust_t_max:
