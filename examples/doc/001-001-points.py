@@ -4,6 +4,7 @@ import numpy as np       # Numpy for smart numerics.
 # Let us define our 2D space as 6mx3m area. We display it on a 800x450
 # window.
 universe = rel.scene.Universe(screen_size = (6, 3), width=800, height=450)
+universe.axes_origin = (0, 0) # This is the default, use None remove axes from the display.
 
 # Here are global settings, default values are often ok, but they are
 # listed here with the default values for the sake of description.

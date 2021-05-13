@@ -369,7 +369,7 @@ class Universe:
         h = self.screen_size[1] * .5
 
         if self.axes_origin is not None:
-            vertices = np.array([[-w, self.axes_origin[0]], [w, self.axes_origin[0]], [self.axes_origin[1], -h], [self.axes_origin[1], h]])
+            vertices = np.array([[-w, self.axes_origin[1]], [w, self.axes_origin[1]], [self.axes_origin[0], -h], [self.axes_origin[0], h]])
             self.s_axes['pos'] = vertices
             self.t_axes['pos'] = vertices
         
