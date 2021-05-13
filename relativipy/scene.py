@@ -61,9 +61,9 @@ class Universe:
         # Draw opaque
         gl.glLineWidth(1.0)
         self.frame.draw(gl.GL_LINES)
-        for p in self.persistants :
-            p.lines_program.draw(gl.GL_LINES)
-        gl.glLineWidth(1.0)
+        if self.show_prism_lines:
+            for p in self.persistants :
+                p.lines_program.draw(gl.GL_LINES)
         for e in self.events :
             e.s_cross_program.draw(gl.GL_LINES)
         gl.glEnable(gl.GL_POLYGON_OFFSET_FILL)
@@ -112,9 +112,10 @@ class Universe:
         
     def __init__(self, screen_size = (4., 3.), width=640, height=480, color=(0.30, 0.30, 0.35, 1.00)):
 
-        self.spacetime_mode = True
-        self.screen_mode    = True
-        self.axes_origin    = (0, 0)
+        self.spacetime_mode   = True
+        self.screen_mode      = True
+        self.axes_origin      = (0, 0)
+        self.show_prism_lines = True
         
         self.bgcolor = color
         self.scale          = 1.
@@ -325,7 +326,7 @@ class Universe:
         self.set_spacetime_transforms()
         trackball.phi   = -5
         trackball.theta = -30
-        trackball.distance = 10
+        trackball.distance = 15
         trackball.zoom  =  35
         self.window.attach(self.time_transform)
         self.window.attach(self.spacetime_transform)
@@ -413,11 +414,12 @@ class Universe:
     def set_spacetime_programs_data(self, w, h, L):
         self.s_axes['ct']      = self.ct
         self.s_axes['ct_max']  = self.ct_max
-        
-        for p in self.persistants :
-            p.lines_program['half_screen_size'] = w, h
-            p.lines_program['ct_max']           = self.ct_max
-            p.lines_program['lorentz']          = L
+
+        if self.show_prism_lines:
+            for p in self.persistants :
+                p.lines_program['half_screen_size'] = w, h
+                p.lines_program['ct_max']           = self.ct_max
+                p.lines_program['lorentz']          = L
             
         for p in self.prisms :
             p.s_slice_program['half_screen_size'] = w, h

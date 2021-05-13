@@ -12,5 +12,13 @@ universe += rel.objects.Prism(None, universe.C, (1.0,   2.0), square_polyline   
 universe += rel.objects.Prism(None, universe.C, (None, None), square_polyline + np.array([-1.1, 0]), (0, 1, 0))
 universe += rel.objects.Prism(None, universe.C, (1.5,  None), square_polyline + np.array([ 1.1, 0]), (0, 0, 1))
 
+# Press space to toggle the display of prism lines.
+def on_toggle_prism_lines():
+    universe.show_prism_lines = not universe.show_prism_lines
+    
+universe.on_key_pressed(' ', on_toggle_prism_lines)
+print('press <space> to toggle prism lines')
+print()
+
 # and run...
 universe.run()
