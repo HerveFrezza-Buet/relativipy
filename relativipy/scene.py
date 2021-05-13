@@ -97,7 +97,12 @@ class Universe:
         
     def on_draw(self, dt):
 
-        self.ct += self.C * dt; 
+        dct = self.C * dt
+        self.ct_target += dct;
+        
+        self.ct += dct;
+        self.ct += self.alpha(self.ct_target - self.ct)
+        
         if self.spacetime_mode:
             self.draw_spacetime()
         else:
@@ -121,8 +126,10 @@ class Universe:
         self.scale          = 1.
         self.trans          = (0., 0.)
         self.C      = 1
-        self.ct     = 0
+        self.ct        = 0
+        self.ct_target = 0
         self.t_max  = 5
+        self.alpha = .1
         self.screen_size = screen_size
         self.prisms = []
         self.points = []
@@ -374,8 +381,7 @@ class Universe:
             self.s_axes['pos'] = vertices
             self.t_axes['pos'] = vertices
         
-        alpha = .1
-        self.current_speed += alpha * (self.speed - self.current_speed)
+        self.current_speed += self.alpha * (self.speed - self.current_speed)
         self.lorentz    = lorentz.direct(self.current_speed, self.C)
 
         if self.adjust_t_max:
@@ -384,7 +390,8 @@ class Universe:
             self.ct_max = self.C * self.t_max
             
         if self.ct > self.ct_max:
-            self.ct = 0
+            self.ct        = 0
+            self.ct_target = 0
             for n in self.notifiers:
                 n.ack()
             for cb in self.restart_callbacks:
