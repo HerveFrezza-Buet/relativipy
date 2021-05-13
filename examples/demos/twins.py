@@ -5,7 +5,7 @@ import numpy as np
 universe = rel.scene.Universe(screen_size = (3, 15), width=800, height=450)
 universe.spacetime_mode   = False
 universe.show_prism_lines = False
-universe.t_max            = 15
+universe.t_max            = 10
 
 human_size           = 1
 ground_level         = -human_size/2
