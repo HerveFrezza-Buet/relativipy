@@ -57,6 +57,18 @@ start_evts.slice_cross_radius     = .5
 turn_back_evts.slice_cross_radius = .5
 end_evts.slice_cross_radius       = .5
 
+view_mode = 'herve'
+
+def set_view_at_start():
+    print('start')
+    
+def set_view_at_U_turn():
+    print('U turn')
+    
+def set_view_at_end():
+    print('end')
+    
+universe += rel.objects.Notifier(start_xyt_R0, et_view_at_start)
 
 
 
