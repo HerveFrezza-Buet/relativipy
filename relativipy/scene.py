@@ -17,7 +17,8 @@ class Universe:
         
         gl.glEnable(gl.GL_DEPTH_TEST)
         gl.glLineWidth(1.0)
-        self.t_axes.draw(gl.GL_LINES)
+        if self.axes_origin is not None:
+            self.t_axes.draw(gl.GL_LINES)
         gl.glLineWidth(3.0)
         for p in self.prisms :
             p.t_slice_program.draw(gl.GL_LINES)
@@ -67,7 +68,7 @@ class Universe:
             e.s_cross_program.draw(gl.GL_LINES)
         gl.glEnable(gl.GL_POLYGON_OFFSET_FILL)
         gl.glLineWidth(3.0)
-        if self.screen_mode:
+        if self.screen_mode and self.axes_origin is not None:
             self.s_axes.draw(gl.GL_LINES)
         for p in self.prisms :
             p.s_slice_program.draw(gl.GL_LINES)
@@ -113,6 +114,7 @@ class Universe:
 
         self.spacetime_mode = True
         self.screen_mode    = True
+        self.axes_origin    = (0, 0)
         
         self.bgcolor = color
         self.scale          = 1.
@@ -366,6 +368,11 @@ class Universe:
         w = self.screen_size[0] * .5
         h = self.screen_size[1] * .5
 
+        if self.axes_origin is not None:
+            vertices = np.array([[-w, self.axes_origin[0]], [w, self.axes_origin[0]], [self.axes_origin[1], -h], [self.axes_origin[1], h]])
+            self.s_axes['pos'] = vertices
+            self.t_axes['pos'] = vertices
+        
         alpha = .1
         self.current_speed += alpha * (self.speed - self.current_speed)
         self.lorentz    = lorentz.direct(self.current_speed, self.C)

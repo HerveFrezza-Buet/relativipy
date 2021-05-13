@@ -3,6 +3,7 @@ import numpy as np
 
 universe = rel.scene.Universe(screen_size = (6, 3), width=800, height=450)
 universe.spacetime_mode = False
+universe.axes_origin    = None
 
 train_speed    = (universe.C*.75, 0)
 universe.force_view_speed(train_speed) # No smooth transition...
