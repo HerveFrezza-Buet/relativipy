@@ -77,5 +77,7 @@ As previously said, read the examples in the `doc` section. It could be easier i
 
 The `demo` section may be filled with more demos in the future. Try them all !
 
+## Lessons
 
+The lesson section contain examples that can be used for lectures, in order to explain restricted relativity concepts, as the Lorentz transform.
 
