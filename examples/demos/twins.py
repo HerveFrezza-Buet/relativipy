@@ -62,7 +62,7 @@ start_evts.slice_cross_radius     = .5
 turn_back_evts.slice_cross_radius = .5
 end_evts.slice_cross_radius       = .5
 
-view_mode = 'herve'
+view_mode = 'olivier'
 herve_speed = (0, travel_speed)
 
 
