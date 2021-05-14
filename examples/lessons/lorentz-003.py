@@ -27,7 +27,7 @@ def make_cone(start_event, radius):
 
     
 R = np.linspace(-2, 2, 3)
-T = np.linspace( 1, 4, 3)
+T = np.linspace( 2, 5, 3)
 starts = np.array([[x, y, t] for x in R for y in R for t in T])
 for start in starts:
     make_cone(start, .5)
