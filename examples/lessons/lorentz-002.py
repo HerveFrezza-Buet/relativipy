@@ -41,21 +41,31 @@ for e in evts.events :
     universe += rel.objects.LightCone(universe.C, e, main.events[1], (0, .7, 0))
     
 
-
 speed = universe.C*.70
 speeds = np.array([[np.cos(t), np.sin(t)] for t in np.linspace(0, 2*np.pi, 12, endpoint=False)]) * speed
+motion_mode = False
 
+def on_switch():
+    global motion_mode
+    motion_mode = not motion_mode
+    if motion_mode:
+        universe.set_view_speed(speeds[current_speed_idx])
+    else:
+        universe.set_view_speed(None)
+        
 current_speed_idx = 0
 def on_next() :
     global current_speed_idx
+    global motion_mode
+    motion_mode = True
     current_speed_idx += 1
     if current_speed_idx >= len(speeds):
         current_speed_idx = 0
     universe.set_view_speed(speeds[current_speed_idx])
 
-universe.on_key_pressed(' ', lambda: universe.set_view_speed(None))
+universe.on_key_pressed(' ', on_switch)
 universe.on_key_pressed('n', on_next)
-print('<space> : null speed')
+print('<space> : null/non-null speed')
 print('n       : next speed')
 print()
 
