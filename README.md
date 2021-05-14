@@ -58,7 +58,7 @@ Try to press 's' (screen) several times, it will toggle the display of the movin
 
 Try to press 't' (time) several times, it toggles the spacetime versus 2D animated space view.
 
-Thanks to glumpy, you can benefit from many extra features. For example, you can record the movie if the experiment. To do so, launch
+Thanks to glumpy, you can benefit from many extra features. For example, you can record the movie of the experiment. To do so, launch
 
 ```
 python3 outer-space.py --record
