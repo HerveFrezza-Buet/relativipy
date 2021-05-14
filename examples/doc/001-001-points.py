@@ -56,21 +56,40 @@ universe += rel.objects.Points(speed, universe.C, time_interval, points, (.7, 0.
 
 # This is it for our 2 objects. Now let us provide the user with the
 # possibility to stand in R0 or in the moving frame, where our second
-# point is still.
+# point is still. The user can also set the simultation to t=2s. The
+# 'set' methods make a smooth transition while the 'force' method
+# perform an instantaneous change.
 
 i_am_in_R0 = True
-def on_change_frame():          # This will be called when the user hits 
-    global i_am_in_R0           # the space key. In this case...
-    i_am_in_R0 = not i_am_in_R0 # ... we change the viewing mode
+
+def on_smooth_change_frame():  
+    global i_am_in_R0           
+    i_am_in_R0 = not i_am_in_R0 
     if i_am_in_R0 :
         universe.set_view_speed(None)
     else:
         universe.set_view_speed(speed)
 
-# We tell the interface to bind the space key to our change mode
-# function.
-universe.on_key_pressed(' ', on_change_frame)
-print('press <space> to change the reference frame')
+def on_immediate_change_frame():  
+    global i_am_in_R0          
+    i_am_in_R0 = not i_am_in_R0
+    if i_am_in_R0 :
+        universe.force_view_speed(None)
+    else:
+        universe.force_view_speed(speed)
+
+
+# We tell the interface to bind tkeys to actions on the simulation.
+universe.on_key_pressed('f', on_smooth_change_frame)
+universe.on_key_pressed('F', on_immediate_change_frame)
+universe.on_key_pressed('x', lambda: universe.set_date(2))
+universe.on_key_pressed('X', lambda: universe.force_date(2))
+
+
+print('press f to change smoothy the reference frame.')
+print('press F to change immediately the reference frame.')
+print('press x to set current time at 2s.')
+print('press X to force current time at 2s.')
 print()
 
 # That's it ! Do not forget to hit the space key...

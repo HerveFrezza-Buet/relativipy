@@ -97,16 +97,41 @@ class Universe:
         
     def on_draw(self, dt):
 
+        self.evolution(self.C * dt)
+        """
         dct = self.C * dt
+        hfb_old = self.ct_target
         self.ct_target += dct;
-        
-        self.ct += dct;
         self.ct += self.alpha_time * (self.ct_target - self.ct)
+        self.speed += self.alpha_speed * (self.speed_target - self.speed)"""
         
         if self.spacetime_mode:
             self.draw_spacetime()
         else:
             self.draw_time()
+
+    def start_transition(self):
+        self.speed_start = self.speed
+        self.ct_start    = self.ct
+        self.transient_step = 0
+        self.transient_mode = True
+        
+    def evolution(self, dct):
+        if self.transient_mode:
+            if self.transient_step < len(self.transient_lambdas):
+                lbd  = self.transient_lambdas[self.transient_step]
+                lbd_ = 1 - lbd
+                self.transient_step += 1
+                self.speed = lbd_ * self.speed_start + lbd * self.speed_target
+                self.ct    = lbd_ * self.ct_start    + lbd * self.ct_target
+            else:
+                self.transient_mode = False
+                
+        if not self.transient_mode:
+            self.ct_target += dct;
+            self.ct = self.ct_target
+            self.speed = self.speed_target
+            
             
 
     def toggle_view_mode(self):
@@ -126,11 +151,28 @@ class Universe:
         self.scale          = 1.
         self.trans          = (0., 0.)
         self.C      = 1
+        self.t_max  = 5
+
         self.ct        = 0
         self.ct_target = 0
-        self.t_max  = 5
-        self.alpha_speed = .1
-        self.alpha_time  = .1
+        self.ct_start  = 0
+        
+        self.speed        = np.array([0., 0], dtype=np.float32)
+        self.speed_target = np.array([0., 0], dtype=np.float32)
+        self.speed_start  = np.array([0., 0], dtype=np.float32)
+        
+        self.transient_mode = False
+        self.transient_step = 0
+
+        
+        nb = 20
+        lambdas = np.linspace(0, 1, nb)
+        lambdas[:nb//2] = 2*lambdas[:nb//2]**2
+        lambdas[nb//2:] = 1-2*(1-lambdas[nb//2:])**2
+        self.transient_lambdas = lambdas
+
+
+        
         self.screen_size = screen_size
         self.prisms = []
         self.points = []
@@ -143,10 +185,8 @@ class Universe:
         self.t_shaders = {}
         self.make_shaders()
         self.lorentz       = np.eye(3,3)
-        self.current_speed = np.array([0., 0], dtype=np.float32)
 
         self.adjust_t_max = False
-        self.speed = np.array([0., 0], dtype=np.float32)
 
         self.key_pressed_cb = {}
 
@@ -249,19 +289,26 @@ class Universe:
 
     def force_view_speed(self, speed):
         if speed is not None:
-            self.speed = np.array([speed[0], speed[1]], dtype=np.float32)
+            self.speed_target = np.array([speed[0], speed[1]], dtype=np.float32)
         else:
-            self.speed = np.array([0., 0], dtype=np.float32)
-        self.current_speed = self.speed
+            self.speed_target = np.array([0., 0], dtype=np.float32)
+        self.speed = self.speed_target
+        self.transient_mode = False
         
     def set_view_speed(self, speed):
         if speed is not None:
-            self.speed = np.array([speed[0], speed[1]], dtype=np.float32)
+            self.speed_target = np.array([speed[0], speed[1]], dtype=np.float32)
         else:
-            self.speed = np.array([0., 0], dtype=np.float32)
+            self.speed_target = np.array([0., 0], dtype=np.float32)
+        self.start_transition()
 
+    def force_date(self, t):
+        self.ct_target = self.C * t
+        self.transient_mode = False
+        
     def set_date(self, t):
         self.ct_target = self.C * t
+        self.start_transition()
         
             
     def __iadd__(self, obj):
@@ -387,8 +434,7 @@ class Universe:
             self.s_axes['pos'] = vertices
             self.t_axes['pos'] = vertices
         
-        self.current_speed += self.alpha_speed * (self.speed - self.current_speed)
-        self.lorentz    = lorentz.direct(self.current_speed, self.C)
+        self.lorentz    = lorentz.direct(self.speed, self.C)
 
         if self.adjust_t_max:
             self.ct_max = lorentz.transform(self.lorentz, np.array([[0, 0, self.C * self.t_max]]))[0][2]

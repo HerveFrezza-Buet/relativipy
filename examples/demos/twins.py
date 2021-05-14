@@ -62,7 +62,7 @@ start_evts.slice_cross_radius     = .5
 turn_back_evts.slice_cross_radius = .5
 end_evts.slice_cross_radius       = .5
 
-view_mode = 'olivier'
+view_mode = 'herve'
 herve_speed = (0, travel_speed)
 
 
@@ -76,15 +76,15 @@ def set_view_at_U_turn(t):
     global herve_speed
     herve_speed = (0, -travel_speed)
     if view_mode == 'herve':
-        universe.set_date(U_turn_xyt_Rback[2])
         universe.set_view_speed(herve_speed)
+        universe.set_date(U_turn_xyt_Rback[2])
     
 def set_view_at_end(t):
     global herve_speed
     herve_speed = (0, 0)
     if view_mode == 'herve':
-        universe.set_date(2 * turn_back_date_R0)
         universe.set_view_speed(None)
+        universe.set_date(2 * turn_back_date_R0)
     
 universe += rel.objects.Notifier(None,              universe.C, (0, 0,                     0), set_view_at_start )
 universe += rel.objects.Notifier((0, travel_speed), universe.C, (0, 0, travel_back_duration ), set_view_at_U_turn)
