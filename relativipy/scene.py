@@ -64,6 +64,10 @@ class Universe:
         if self.show_prism_lines:
             for p in self.persistants :
                 p.lines_program.draw(gl.GL_LINES)
+        else:
+            for p in self.points : 
+                p.lines_program.draw(gl.GL_LINES)
+            
         for e in self.events :
             e.s_cross_program.draw(gl.GL_LINES)
         gl.glEnable(gl.GL_POLYGON_OFFSET_FILL)
@@ -476,6 +480,11 @@ class Universe:
 
         if self.show_prism_lines:
             for p in self.persistants :
+                p.lines_program['half_screen_size'] = w, h
+                p.lines_program['ct_max']           = self.ct_max
+                p.lines_program['lorentz']          = L
+        else:
+            for p in self.points :
                 p.lines_program['half_screen_size'] = w, h
                 p.lines_program['ct_max']           = self.ct_max
                 p.lines_program['lorentz']          = L
