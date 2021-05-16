@@ -46,11 +46,26 @@ universe += herve_go
 universe += herve_back
 
 start_xyt_R0 = start_evts.events[0] * np.array([1, 1, 1/universe.C])
-chrono_olivier    = rel.objects.Chronometer(None,               universe.C, start_xyt_R0,     chrono_period, 2 * turn_back_date_R0, (1, .7, .7))
+nb_ticks_A = 6
+nb_ticks_B = 13
+nb_ticks_C = 5
+epsilon = 1e-3
+start_evt = start_xyt_R0
+end_time   = start_evt[2] + nb_ticks_A * chrono_period
+chrono_olivier_A = rel.objects.Chronometer(None, universe.C, start_evt, chrono_period, end_time - start_evt[2] - epsilon, (1, .7, .7))
+start_evt[2] = end_time
+end_time += nb_ticks_B * chrono_period
+chrono_olivier_B = rel.objects.Chronometer(None, universe.C, start_evt, chrono_period, end_time - start_evt[2] - epsilon, (.5, .2, .2))
+start_evt[2] = end_time
+end_time += nb_ticks_C * chrono_period
+chrono_olivier_C = rel.objects.Chronometer(None, universe.C, start_evt, chrono_period, end_time - start_evt[2] + epsilon, (1, .7, .7))
+
 chrono_herve_go   = rel.objects.Chronometer((0,  travel_speed), universe.C, (0, 0, 0),        chrono_period, travel_back_duration,  (.7, .7, 1))
 chrono_herve_back = rel.objects.Chronometer((0, -travel_speed), universe.C, U_turn_xyt_Rback, chrono_period, travel_back_duration,  (.7, .7, 1))
 
-universe += chrono_olivier
+universe += chrono_olivier_A
+universe += chrono_olivier_B
+universe += chrono_olivier_C
 universe += chrono_herve_go
 universe += chrono_herve_back
 
@@ -100,17 +115,43 @@ def on_change_view():
         view_mode = 'olivier'
         universe.set_view_speed(None)
 
-universe.on_key_pressed(' ', on_change_view)
-print('press <space> to change the reference frame')
+def set_herve_view():
+    global view_mode
+    view_mode = 'herve'
+    universe.set_view_speed(herve_speed)
+    
+def set_olivier_view():
+    global view_mode
+    view_mode = 'olivier'
+    universe.set_view_speed(None)
+
+def set_upship_view():
+    global view_mode
+    view_mode = 'up'
+    universe.set_view_speed((0, travel_speed))
+
+def set_downship_view():
+    global view_mode
+    view_mode = 'down'
+    universe.set_view_speed((0, -travel_speed))
+
+universe.on_key_pressed('h', set_herve_view)
+universe.on_key_pressed('o', set_olivier_view)
+universe.on_key_pressed('u', set_upship_view)
+universe.on_key_pressed('d', set_downship_view)
+print("press h to view from Hervé's reference frame.")
+print("press o to view from Olivier's reference frame.")
+print("press u to view from up spaceship reference frame.")
+print("press d to view from down spaceship reference frame.")
 print()
 
 # Let us compare the proper times of olivier and herve.
 print()
 print()
-nb_ticks_olivier = len(chrono_olivier.events)
+nb_ticks_olivier = len(chrono_olivier_A.events) + len(chrono_olivier_B.events) + len(chrono_olivier_C.events)
 nb_ticks_herve = len(chrono_herve_go.events) + len(chrono_herve_back.events) - 1
-text = 'Olivier, staying on the ground, has experienced {} proper chronometer\nticks while Hervé, travelling, has experienced only {} of them. At the\nend, Olivier is {} seconds older than Hervé.'
-print(text.format(nb_ticks_olivier, nb_ticks_herve, (nb_ticks_olivier - nb_ticks_herve) * chrono_period))
+text = 'Olivier, staying on the ground, has experienced {} proper chronometer\nticks while Hervé, travelling, has experienced only {} of them. At the\nend, Olivier is {} seconds older than Hervé. Hervé has juped {} ticks\nin the future of Olivier at U-turn.'
+print(text.format(nb_ticks_olivier, nb_ticks_herve, (nb_ticks_olivier - nb_ticks_herve) * chrono_period,  len(chrono_olivier_B.events)))
 print()
 print()
 
