@@ -21,6 +21,10 @@ left  = np.array([(-1, 0), (-1, 3), (-1, 2), (-2, 2), (-2, 4)])
 right = np.flip((left * np.array([-1, 1])), axis=0)
 human = np.vstack((left, head + np.array([0, 5]), right, np.array([left[0]]))) * human_size/6
 
+
+ship = np.array([(-5, -4), (-3, -1), (-3, 4), (0, 5), (3, 4), (3, -1), (5, -4), (-5, -4)])
+universe += rel.objects.Prism((0, travel_speed), universe.C, (None, None), ship, (.2, .2, .2))
+
 twin_start_position = (0, ground_level)
 twin = human + twin_start_position
 
