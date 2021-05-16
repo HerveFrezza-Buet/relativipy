@@ -5,7 +5,8 @@ import numpy as np
 universe = rel.scene.Universe(screen_size = (3, 10), width=800, height=450)
 universe.spacetime_mode   = False
 universe.show_prism_lines = False
-universe.t_max            = 6
+universe.t_max            = 5
+universe.adjust_t_max     = True
 universe.axes_origin      = None
 
 human_size           = 1
