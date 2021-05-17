@@ -16,8 +16,16 @@ The rendering is based on [glumpy](https://glumpy.github.io/) by Nicolas Rougier
 
 This project is based on [glumpy](https://glumpy.github.io/). On ubuntu, you may need to install glfw with glumpy.
 
+For Ubuntu users, it should be
+
 ```
 sudo apt install libglfw3
+```
+
+and for Fedora users,
+
+```
+dnf install glfw
 ```
 
 This is an example of a glumpy installation on your computer from the sources.
