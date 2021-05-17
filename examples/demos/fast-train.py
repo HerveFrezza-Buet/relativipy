@@ -23,7 +23,7 @@ universe += rel.objects.Prism(train_speed, universe.C, (None, None), mirror + st
 
 event_offset = np.array([start_pos[0], start_pos[1], 2])
 events = np.array([[0, 0, 0], [0, height, universe.C * height], [0, 0, 2 * universe.C * height]]) + event_offset
-events = rel.objects.Events(train_speed, universe.C, events, (0, 0, .8))
+events = rel.objects.Events(train_speed, universe.C, events, (0, .8, .8))
 universe += events
 events.cross_radius       = .1
 events.slice_cross_radius = .2
