@@ -1,31 +1,28 @@
 import numpy as np
-from . import spacetime
 
 def direct(speed, C) :
     """
     speed = np.array([vx, vy]) : the speed of the moving referential.
     C                          : the speed of light.
     
-    returns L such as np.dot(L, np.array([x, y, ct]).T).T = np.array([x', y', ct'])
+    returns G such as np.dot(G, np.array([x, y, ct]).T).T = np.array([x', y', ct'])
             where [x', y', ct'] are the coordinates in the moving referential.
     """
     
-    v2 = np.dot(speed, speed)
-    if v2 == 0 :
-        return np.eye(3, 3)
-    vxx     = speed[0]**2 / v2
-    vyy     = speed[1]**2 / v2
-    vxy     = speed[0] * speed[1] / v2
-    gamma   = 1/np.sqrt(1 - v2/C**2)
-    gamma_1 = gamma - 1
-    gvxc    = -gamma * speed[0] / C
-    gvyc    = -gamma * speed[1] / C
-    return np.array([[1 + gamma_1 * vxx,     gamma_1 * vxy,  gvxc],
-                     [    gamma_1 * vxy, 1 + gamma_1 * vyy,  gvyc],
-                     [             gvxc,              gvyc, gamma]])
+    return np.array([[1, 0, -speed[0]/C],
+                     [0, 1, -speed[1]/C],
+                     [0, 0,           1])
 
 def inverse(speed, C) :
     return direct(-speed, C)
+
+def transform(G, ct_events) :
+    """
+    G is a Galilee matrix
+    ct_events = np.array([[x1, y1, ct1], [x2, y2, ct2], ...]) expressed in a moving referential.
+    C                          : the speed of light.
+    """
+    return np.dot(G, ct_events.T).T
 
 def to_spacetime(speed, C, events) :
     """
@@ -40,4 +37,4 @@ def to_spacetime(speed, C, events) :
     e_ct = events * np.array([1, 1, C])
     if speed is None:
         return e_ct
-    return spacetime.transform(inverse(speed, C), e_ct)
+    return transform(inverse(speed, C), e_ct)

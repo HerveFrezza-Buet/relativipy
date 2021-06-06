@@ -4,6 +4,8 @@ from glumpy.transforms import Trackball, Position, Translate, OrthographicProjec
 
 from . import objects
 from . import lorentz
+from . import galilee
+from . import spacetime
 
 class Shader():
     def __init__(self, vertex, fragment):

@@ -81,7 +81,7 @@ class Prism(Persistant):
         buf = np.zeros((self.max_nb_slice_line_vertices, 2), dtype=np.float32)
         segments = self.segments.reshape((2 * self.nb_segments, 3))
         segments = lorentz.transform(L, segments).reshape(self.segments.shape)
-        s = lorentz.ct_slice_of_quads(segments, ct)
+        s = spacetime.ct_slice_of_quads(segments, ct)
         if s is not None:
             buf[0:len(s)] = s
         return buf
@@ -179,7 +179,7 @@ class Points(Persistant):
         buf = np.zeros((self.nb_vertices_sliced_crosses, 3), dtype=np.float32)
         segments = self.segments.reshape((2 * self.nb_segments, 3))
         segments = lorentz.transform(L, segments).reshape(self.segments.shape)
-        centers = lorentz.slice_points_of_segments(ct, segments)
+        centers = spacetime.slice_points_of_segments(ct, segments)
         if len(centers) > 0 :
             dx = np.array([self.cross_radius, 0, 0])
             dy = np.array([0, self.cross_radius, 0])
