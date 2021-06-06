@@ -1,23 +1,24 @@
 import numpy as np
-from . import lorentz
+from . import spacetime
 
 import sys
 
 class Thing:
-    def __init__(self, speed):
+    def __init__(self, universe, speed):
+        self.U = universe
         if speed is not None:
             self.speed = np.array([speed[0], speed[1]], dtype=np.float32)
         else:
             self.speed = None
     
 class ColoredThing(Thing) : 
-    def __init__(self, speed, color):
-        Thing.__init__(self, speed)
+    def __init__(self, universe, speed, color):
+        Thing.__init__(self, universe, speed)
         self.color = color
 
 class Persistant(ColoredThing) :
-    def __init__(self, speed, C, time_interval, xy_points, color):
-        ColoredThing.__init__(self, speed, color)
+    def __init__(self, universe, speed, time_interval, xy_points, color):
+        ColoredThing.__init__(self, universe, speed, color)
         
         tmin, tmax = time_interval
         if tmin is None :
@@ -28,8 +29,8 @@ class Persistant(ColoredThing) :
         start = np.hstack((xy_points, np.full((len(xy_points), 1), tmin)))
         end   = np.hstack((xy_points, np.full((len(xy_points), 1), tmax)))
 
-        start = lorentz.to_spacetime(self.speed, C, start)
-        end   = lorentz.to_spacetime(self.speed, C, end)
+        start = self.U.to_spacetime(self.speed, start)
+        end   = self.U.to_spacetime(self.speed, end)
 
         self.segments = np.hstack((start, end)).reshape((len(start), 2, 3))
         self.nb_segments = len(self.segments)
@@ -47,8 +48,8 @@ class Persistant(ColoredThing) :
 
         
 class Prism(Persistant):
-    def __init__(self, speed, C, time_interval, xy_points, color):
-        Persistant.__init__(self, speed, C, time_interval, xy_points, color)
+    def __init__(self, universe, speed, time_interval, xy_points, color):
+        Persistant.__init__(self, universe, speed, time_interval, xy_points, color)
         
 
         l = [[a, b, d, c] for (a, b), (c, d)  in zip(self.segments[:-1], self.segments[1:])]
@@ -77,10 +78,10 @@ class Prism(Persistant):
         self.t_slice_program['color']  = self.color[0], self.color[1], self.color[2], 1
         self.t_slice_program['point']  = np.zeros((self.max_nb_slice_line_vertices, 2), dtype=np.float32)
 
-    def current_slice(self, L, C, ct) :
+    def current_slice(self, M, C, ct) :
         buf = np.zeros((self.max_nb_slice_line_vertices, 2), dtype=np.float32)
         segments = self.segments.reshape((2 * self.nb_segments, 3))
-        segments = lorentz.transform(L, segments).reshape(self.segments.shape)
+        segments = spacetime.transform(M, segments).reshape(self.segments.shape)
         s = spacetime.ct_slice_of_quads(segments, ct)
         if s is not None:
             buf[0:len(s)] = s
@@ -88,14 +89,14 @@ class Prism(Persistant):
 
 
 class Events(ColoredThing) :
-    def __init__(self, speed, C, xyt_points, color):
+    def __init__(self, universe, speed, xyt_points, color):
         ColoredThing.__init__(self, speed, color)
         
         self.spot_duration = .30 # second
         self.cross_radius  = .05
         self.slice_cross_radius  = .1
     
-        self.events = lorentz.to_spacetime(self.speed, C, xyt_points)
+        self.events = self.U.to_spacetime(self.speed, xyt_points)
         self.nb_line_crosses        = 6 * len(self.events)
         self.nb_line_sliced_crosses = 4 * len(self.events)
 
@@ -116,17 +117,17 @@ class Events(ColoredThing) :
         self.t_slice_cross_program['color'] = self.color[0], self.color[1], self.color[2], 1
         self.t_slice_cross_program['pos'] = np.zeros((self.nb_line_sliced_crosses, 3), dtype=np.float32)
 
-    def current_events(self, L, C) :
-        centers = lorentz.transform(L, self.events)
+    def current_events(self, M, C) :
+        centers = spacetime.transform(M, self.events)
         d  = self.cross_radius
         dx = np.array([1, 0, 0]) * d
         dy = np.array([0, 1, 0]) * d
         dt = np.array([0, 0, 1]) * d
         return np.hstack((centers + dx, centers - dx, centers - dy, centers + dy, centers - dt, centers + dt)).reshape(self.nb_line_crosses, 3)
 
-    def current_slice(self, L, C, ct) :
+    def current_slice(self, M, C, ct) :
         buf = np.zeros((self.nb_line_sliced_crosses, 3), dtype=np.float32)
-        centers = lorentz.transform(L, self.events)
+        centers = spacetime.transform(M, self.events)
         rho = self.spot_duration*C
         select = np.logical_and(ct >= centers[...,2], centers[...,2] >= ct-rho)
         centers = centers[select]
@@ -141,7 +142,7 @@ class Events(ColoredThing) :
         return buf
         
 class Chronometer(Events):
-    def __init__(self, speed, C, start_event, tick_period, duration, color):
+    def __init__(self, universe, speed, start_event, tick_period, duration, color):
         n = 1
         t = start_event[2]
         times = [t]
@@ -152,11 +153,11 @@ class Chronometer(Events):
             n += 1
             t = times[0] + n * tick_period
         xyt_points = np.array([[start_event[0], start_event[1], t] for t in times])
-        Events.__init__(self, speed, C, xyt_points, color)
+        Events.__init__(self, universe, speed, xyt_points, color)
 
 class Points(Persistant):
-    def __init__(self, speed, C, time_interval, xy_points, color):
-        Persistant.__init__(self, speed, C, time_interval, xy_points, color)
+    def __init__(self, universe, speed, time_interval, xy_points, color):
+        Persistant.__init__(self, universe, speed, time_interval, xy_points, color)
         self.nb_vertices_sliced_crosses = 4*self.nb_segments
         
         self.cross_radius  = .05
@@ -175,10 +176,10 @@ class Points(Persistant):
         self.t_slice_cross_program['color'] = self.color[0], self.color[1], self.color[2], 1
         self.t_slice_cross_program['pos'] = np.zeros((self.nb_vertices_sliced_crosses, 3), dtype=np.float32)
 
-    def current_slice(self, L, C, ct) :
+    def current_slice(self, M, C, ct) :
         buf = np.zeros((self.nb_vertices_sliced_crosses, 3), dtype=np.float32)
         segments = self.segments.reshape((2 * self.nb_segments, 3))
-        segments = lorentz.transform(L, segments).reshape(self.segments.shape)
+        segments = spacetime.transform(M, segments).reshape(self.segments.shape)
         centers = spacetime.slice_points_of_segments(ct, segments)
         if len(centers) > 0 :
             dx = np.array([self.cross_radius, 0, 0])
@@ -189,18 +190,18 @@ class Points(Persistant):
         return buf
 
 class Notifier(Thing):
-    def __init__(self, speed, C, xyt_event, callback):
-        Thing.__init__(self, speed)
-        self.event = lorentz.to_spacetime(self.speed, C, np.array([xyt_event]))
+    def __init__(self, universe, speed, xyt_event, callback):
+        Thing.__init__(self, universe, speed)
+        self.event = self.U.to_spacetime(self.speed, np.array([xyt_event]))
         self.cb = callback
         self.not_called = True
         
     def ack(self):
         self.not_called = True
 
-    def notify(self, L, ct):
+    def notify(self, M, ct):
         if self.not_called:
-            t = lorentz.transform(L, self.event)[0][2]
+            t = spacetime.transform(M, self.event)[0][2]
             if t <= ct:
                 self.cb(t)
                 self.not_called = False
@@ -210,7 +211,7 @@ light_cone_pie_nb = 50
 light_cone_circle_2D = np.array([[np.sin(t), np.cos(t)] for t in np.linspace(0, 2*np.pi, light_cone_pie_nb)])
 light_cone_circle_3D = np.array([[np.sin(t), np.cos(t), 0] for t in np.linspace(0, 2*np.pi, light_cone_pie_nb)])
 class LightCone :
-    def __init__(self, C, start, end, color):
+    def __init__(self, universe, start, end, color): # universe useless, but kept for homogeneity.
         self.color = color
         self.bounds = np.array([start, end])
         self.nb_vertices = 1 + light_cone_pie_nb
@@ -234,8 +235,8 @@ class LightCone :
         self.t_slice_program['color'] = self.color[0], self.color[1], self.color[2], 1
         self.t_slice_program['pos']   = np.zeros((self.slice_size, 3), dtype=np.float32)
 
-    def current_cone(self, L, C):
-        start, end = lorentz.transform(L, self.bounds)
+    def current_cone(self, M, C):
+        start, end = spacetime.transform(M, self.bounds)
         radius = C*(end[2] - start[2])
         buf = np.zeros((self.nb_vertices, 3), dtype=np.float32)
         buf[0]  = start
@@ -243,9 +244,9 @@ class LightCone :
         buf[1:] = start + radius * light_cone_circle_3D
         return buf
     
-    def current_slice(self, L, C, ct):
+    def current_slice(self, M, C, ct):
         buf = np.zeros((self.slice_size, 3), dtype=np.float32)
-        start, end = lorentz.transform(L, self.bounds)
+        start, end = spacetime.transform(M, self.bounds)
         if start[2] <= ct <= end[2]:
             radius   = C*(ct - start[2])
             start[2] = ct

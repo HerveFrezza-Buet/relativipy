@@ -146,7 +146,7 @@ class Universe:
     def toggle_screen_mode(self):
         self.screen_mode = not self.screen_mode
         
-    def __init__(self, screen_size = (4., 3.), width=640, height=480, color=(0.30, 0.30, 0.35, 1.00)):
+    def __init__(self, screen_size, width, height, color):
 
         self.spacetime_mode   = True
         self.screen_mode      = True
@@ -190,7 +190,7 @@ class Universe:
         self.s_shaders = {}
         self.t_shaders = {}
         self.make_shaders()
-        self.lorentz       = np.eye(3,3)
+        self.transframe       = np.eye(3,3)
 
         self.adjust_t_max = False
 
@@ -315,8 +315,10 @@ class Universe:
     def set_date(self, t):
         self.ct_target = self.C * t
         self.start_transition()
-        
-            
+
+    def transform(self, ct_events):
+        return spacetime.transform(self.transframe, ct_events)
+    
     def __iadd__(self, obj):
         if isinstance(obj, objects.Prism):
             self.add_persistant(obj) # This first, from mother to terminal classes.
@@ -440,10 +442,10 @@ class Universe:
             self.s_axes['pos'] = vertices
             self.t_axes['pos'] = vertices
         
-        self.lorentz    = lorentz.direct(self.speed, self.C)
+        self.transframe = self.direct()
 
         if self.adjust_t_max:
-            self.ct_max = lorentz.transform(self.lorentz, np.array([[0, 0, self.C * self.t_max]]))[0][2]
+            self.ct_max = self.transform(np.array([[0, 0, self.C * self.t_max]]))[0][2]
         else:
             self.ct_max = self.C * self.t_max
             
@@ -460,23 +462,23 @@ class Universe:
         self.screen['ct_max']  = self.ct_max
         self.frame['ct_max']   = self.ct_max
 
-        L  = self.lorentz.T
+        M = self.transframe.T
 
             
         for n in self.notifiers:
-            n.notify(L, self.ct)
+            n.notify(M, self.ct)
             
         for p in self.prisms :
             p.quads_program['half_screen_size'] = w, h
             p.quads_program['ct_max']           = self.ct_max
-            p.quads_program['lorentz']          = L
+            p.quads_program['transframe']       = M
 
         if self.spacetime_mode:
-            self.set_spacetime_programs_data(w, h, L)
+            self.set_spacetime_programs_data(w, h, M)
         else:
-            self.set_time_programs_data(w, h, L)
+            self.set_time_programs_data(w, h, M)
 
-    def set_spacetime_programs_data(self, w, h, L):
+    def set_spacetime_programs_data(self, w, h, M):
         self.s_axes['ct']      = self.ct
         self.s_axes['ct_max']  = self.ct_max
 
@@ -484,41 +486,41 @@ class Universe:
             for p in self.persistants :
                 p.lines_program['half_screen_size'] = w, h
                 p.lines_program['ct_max']           = self.ct_max
-                p.lines_program['lorentz']          = L
+                p.lines_program['transframe']       = M
         else:
             for p in self.points :
                 p.lines_program['half_screen_size'] = w, h
                 p.lines_program['ct_max']           = self.ct_max
-                p.lines_program['lorentz']          = L
+                p.lines_program['transframe']       = M
             
         for p in self.prisms :
             p.s_slice_program['half_screen_size'] = w, h
             p.s_slice_program['ct_max']           = self.ct_max
             p.s_slice_program['ct']               = self.ct
-            p.s_slice_program['point']            = p.current_slice(L, self.C, self.ct)
+            p.s_slice_program['point']            = p.current_slice(M, self.C, self.ct)
             
         for e in self.events :
             e.s_cross_program['half_screen_size']       = w, h
             e.s_cross_program['ct_max']                 = self.ct_max
-            e.s_cross_program['pos']                    = e.current_events(L, self.C)
+            e.s_cross_program['pos']                    = e.current_events(M, self.C)
             e.s_slice_cross_program['half_screen_size'] = w, h
             e.s_slice_cross_program['ct_max']           = self.ct_max
-            e.s_slice_cross_program['pos']              = e.current_slice(L, self.C, self.ct)
+            e.s_slice_cross_program['pos']              = e.current_slice(M, self.C, self.ct)
             
         for p in self.points :
             p.s_slice_cross_program['half_screen_size'] = w, h
             p.s_slice_cross_program['ct_max']           = self.ct_max
-            p.s_slice_cross_program['pos']              = p.current_slice(L, self.C, self.ct)
+            p.s_slice_cross_program['pos']              = p.current_slice(M, self.C, self.ct)
             
         for l in self.lights :
             l.fan_program['half_screen_size']     = w, h
             l.fan_program['ct_max']               = self.ct_max
-            l.fan_program['pos']                  = l.current_cone(L, self.C)
+            l.fan_program['pos']                  = l.current_cone(M, self.C)
             l.s_slice_program['half_screen_size'] = w, h
             l.s_slice_program['ct_max']           = self.ct_max
-            l.s_slice_program['pos']              = l.current_slice(L, self.C, self.ct)
+            l.s_slice_program['pos']              = l.current_slice(M, self.C, self.ct)
 
-    def set_time_programs_data(self, w, h, L):
+    def set_time_programs_data(self, w, h, M):
         self.t_axes['scale'] = self.scale
         self.t_axes['trans'] = self.trans
         
@@ -527,28 +529,28 @@ class Universe:
             p.t_slice_program['scale']            = self.scale
             p.t_slice_program['trans']            = self.trans
             p.t_slice_program['ct']               = self.ct
-            p.t_slice_program['point']            = p.current_slice(L, self.C, self.ct)
+            p.t_slice_program['point']            = p.current_slice(M, self.C, self.ct)
             
         for e in self.events :
             e.t_slice_cross_program['half_screen_size'] = w, h
             e.t_slice_cross_program['scale']            = self.scale
             e.t_slice_cross_program['trans']            = self.trans
             e.t_slice_cross_program['ct_max']           = self.ct_max
-            e.t_slice_cross_program['pos']              = e.current_slice(L, self.C, self.ct)
+            e.t_slice_cross_program['pos']              = e.current_slice(M, self.C, self.ct)
             
         for p in self.points :
             p.t_slice_cross_program['half_screen_size'] = w, h
             p.t_slice_cross_program['scale']            = self.scale
             p.t_slice_cross_program['trans']            = self.trans
             p.t_slice_cross_program['ct_max']           = self.ct_max
-            p.t_slice_cross_program['pos']              = p.current_slice(L, self.C, self.ct)
+            p.t_slice_cross_program['pos']              = p.current_slice(M, self.C, self.ct)
             
         for l in self.lights :
             l.t_slice_program['half_screen_size'] = w, h
             l.t_slice_program['scale']            = self.scale
             l.t_slice_program['trans']            = self.trans
             l.t_slice_program['ct_max']           = self.ct_max
-            l.t_slice_program['pos']              = l.current_slice(L, self.C, self.ct)
+            l.t_slice_program['pos']              = l.current_slice(M, self.C, self.ct)
         
     def make_frame_shader(self):
         vertex = """
@@ -592,12 +594,12 @@ class Universe:
         vertex = """
         uniform float ct_max;
         uniform vec2 half_screen_size;
-        uniform mat3 lorentz;
+        uniform mat3 transframe;
         attribute vec3 pos;
         varying   vec3 p;
         void main()
         {
-            p = lorentz * pos;
+            p = transframe * pos;
             vec3 position = vec3(p.x, p.y, p.z - ct_max/2);
             gl_Position = <transform>;
         } 
@@ -680,3 +682,25 @@ class Universe:
         }"""
         self.s_shaders['events'] = Shader(vertex, fragment)
         self.t_shaders['events'] = Shader(vertex, fragment)
+
+
+class Relativist(Universe):
+    def __init__(self, screen_size = (4., 3.), width=640, height=480, color=(0.30, 0.30, 0.35, 1.00)):
+        Universe.__init__(self, screen_size, width, height, color)
+
+    def direct(self):
+        return lorentz.direct(self.speed, self.C)
+
+    def to_spacetime(self, speed, events):
+        return lorentz.to_spacetime(speed, self.C, events)
+
+
+class Newtonian(Universe):
+    def __init__(self, screen_size = (4., 3.), width=640, height=480, color=(0.30, 0.30, 0.35, 1.00)):
+        Universe.__init__(self, screen_size, width, height, color)
+
+    def direct(self):
+        return galilee.direct(self.speed, self.C)
+
+    def to_spacetime(self, speed, events):
+        return galilee.to_spacetime(speed, self.C, events)

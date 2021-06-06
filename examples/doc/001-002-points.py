@@ -1,7 +1,7 @@
 import relativipy as rel
 import numpy as np
 
-universe = rel.scene.Universe(screen_size = (6, 3), width=800, height=450)
+universe = rel.universe.Relativist(screen_size = (6, 3), width=800, height=450)
 universe.adjust_t_max = True
 universe.t_max        = 5
 
@@ -15,8 +15,8 @@ time_interval = (1, universe.t_max - .5)
 
 # Ok let ius create many point groups.
 for l in np.linspace(0, 1, 5) :
-    universe +=rel.objects.Points((2*l - 1) * max_speed, # from -max_speed to max_speed
-                                  universe.C,
+    universe +=rel.objects.Points(universe,
+                                  (2*l - 1) * max_speed, # from -max_speed to max_speed
                                   time_interval,
                                   xy,
                                   (1-l) * color_start + l * color_end)

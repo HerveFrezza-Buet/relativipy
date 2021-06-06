@@ -3,7 +3,8 @@ import numpy as np       # Numpy for smart numerics.
 
 # Let us define our 2D space as 6mx3m area. We display it on a 800x450
 # window.
-universe = rel.scene.Universe(screen_size = (6, 3), width=800, height=450)
+universe = rel.universe.Relativist(screen_size = (6, 3), width=800, height=450)
+# rel.universe.Newtonian is also available.
 universe.axes_origin = (0, 0) # This is the default, use None remove axes from the display.
 
 # Here are global settings, default values are often ok, but they are
@@ -41,7 +42,7 @@ time_interval = (None, None)
 color = (0., .7, .7)
 
 # Let us create the object, sets some of its features, and add it to our universe.
-obj = rel.objects.Points(speed, universe.C, time_interval, points, color)
+obj = rel.objects.Points(universe, speed, time_interval, points, color)
 obj.cross_radius = .05 # We set the size for the cross associated to the point to the default value here.
 universe += obj
 
@@ -52,7 +53,7 @@ speed = (universe.C/2, 0.) # vx, vy
 # but passing a not None speed to the object construction, telling
 # that its definition is made withing a moving frame of reference (the
 # proper frame indeed).
-universe += rel.objects.Points(speed, universe.C, time_interval, points, (.7, 0., .7))
+universe += rel.objects.Points(universe, speed, time_interval, points, (.7, 0., .7))
 
 # This is it for our 2 objects. Now let us provide the user with the
 # possibility to stand in R0 or in the moving frame, where our second

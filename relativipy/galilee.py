@@ -11,7 +11,7 @@ def direct(speed, C) :
     
     return np.array([[1, 0, -speed[0]/C],
                      [0, 1, -speed[1]/C],
-                     [0, 0,           1])
+                     [0, 0,           1]])
 
 def inverse(speed, C) :
     return direct(-speed, C)
