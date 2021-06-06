@@ -3,7 +3,7 @@ import numpy as np
 
 square_polyline = np.array([(-.5, -.5), (.5, -.5), (.5, .5), (-.5, .5), (-.5, -.5)])
 
-universe = rel.scene.Universe(screen_size = (6, 4), width=800, height=450)
+universe = rel.universe.Relativist(screen_size = (6, 4), width=800, height=450)
 
 # Having one moving polygon is performed by defining a prism in a
 # movong frame of reference. In that frame, its speed is null and its
@@ -13,8 +13,8 @@ universe = rel.scene.Universe(screen_size = (6, 4), width=800, height=450)
 speed = (universe.C/2, universe.C/4)
 
 
-universe += rel.objects.Prism(None,  universe.C, (1., 4.), square_polyline + np.array([ 1,  .6]), (1, 0, 0))
-universe += rel.objects.Prism(speed, universe.C, (1., 4.), square_polyline + np.array([-1, -.6]), (0, 1, 0))    
+universe += rel.objects.Prism(universe, None,  (1., 4.), square_polyline + np.array([ 1,  .6]), (1, 0, 0))
+universe += rel.objects.Prism(universe, speed, (1., 4.), square_polyline + np.array([-1, -.6]), (0, 1, 0))    
 
 # Let us bind the space key to a change of reference frame.
 

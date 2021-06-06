@@ -1,7 +1,7 @@
 import relativipy as rel
 import numpy as np
 
-universe = rel.scene.Universe(screen_size = (6, 4), width=800, height=450)
+universe = rel.universe.Relativist(screen_size = (6, 4), width=800, height=450)
 
 # In restricted relativity, events are points in the spacetime,
 # i.e. (x, y, ct) triplets with our bidimentional space. It is
@@ -14,7 +14,7 @@ universe = rel.scene.Universe(screen_size = (6, 4), width=800, height=450)
 events = np.array([[np.cos(theta), np.sin(theta), theta/(2*np.pi)] for theta in np.linspace(0, 8*np.pi, 100)])
 
 # Let us build an Events relativipy object for them. None is for R0, as usual.
-evts = rel.objects.Events(None, universe.C, events, (0, .7, .7))
+evts = rel.objects.Events(universe, None, events, (0, .7, .7))
 
 # Events appear as a 3D crosses, that sparkle when they actually
 # occur. You can adjust these features, the default are set here for
@@ -32,7 +32,7 @@ universe += evts
 
 # As usual, let us define the same events in a moving proper frame of reference.
 speed = (universe.C/2, -universe.C/4)
-universe += rel.objects.Events(speed, universe.C, events, (.7, 0, .7))
+universe += rel.objects.Events(universe, speed, events, (.7, 0, .7))
 
 i_am_in_R0 = True
 def on_change_frame():          

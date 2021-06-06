@@ -90,7 +90,7 @@ class Prism(Persistant):
 
 class Events(ColoredThing) :
     def __init__(self, universe, speed, xyt_points, color):
-        ColoredThing.__init__(self, speed, color)
+        ColoredThing.__init__(self, universe, speed, color)
         
         self.spot_duration = .30 # second
         self.cross_radius  = .05
