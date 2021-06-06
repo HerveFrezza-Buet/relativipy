@@ -1,7 +1,7 @@
 import relativipy as rel
 import numpy as np
 
-universe = rel.scene.Universe(screen_size = (10, 10), width=800, height=450)
+universe = rel.universe.Relativist(screen_size = (10, 10), width=800, height=450)
 
 # The emmission of light from a point is a propagating circular wave,
 # travelling at the speed of... light! This forms a cone in the
@@ -27,14 +27,14 @@ dt = 1/universe.C # The time need for the light to propagate along 1 meter.
 events = np.array([[np.cos(theta), np.sin(theta), rank*dt] for rank, theta in enumerate(np.linspace(0, nb_loops*2*np.pi, nb_events))])
 universe.t_max = events[-1][2] + 1
 universe.adjust_t_max = True
-evts = rel.objects.Events(None, universe.C, events, (0, 0, 0))
+evts = rel.objects.Events(universe, None, events, (0, 0, 0))
 evts.slice_cross_radius = .2 
 events = evts.events # we have (x, y, ct) events now... we are ready for light cones definitions.
 universe += evts
 
 # We will start a light cone from one event in the list, and stop at the next.
 for (start, end) in zip(events[:-1], events[1:]) :
-    universe += rel.objects.LightCone(universe.C, start, end, (.8, .8, 0))
+    universe += rel.objects.LightCone(universe, start, end, (.8, .8, 0))
 
 # It is nice to view our scene from moving frames of reference. Let us
 # provide a few to the user, by hitting the space key.

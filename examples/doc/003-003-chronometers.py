@@ -7,7 +7,7 @@ import numpy as np
 
 
 square_polyline = np.array([(-.5, -.5), (.5, -.5), (.5, .5), (-.5, .5), (-.5, -.5)])
-universe = rel.scene.Universe(screen_size = (6, 4), width=800, height=450)
+universe = rel.universe.Relativist(screen_size = (6, 4), width=800, height=450)
 speed = (universe.C/2, universe.C/4)
 
 start_time = 1
@@ -19,14 +19,14 @@ birth_of_green_cube = np.array([-1, -.6, start_time]) # ... in (x, y, t) format 
 tick_period = .25 # 4 impulses per second.
 
 
-universe += rel.objects.Prism(None,  universe.C, time_interval, square_polyline + birth_of_red_cube  [:2], (1, 0, 0))
-universe += rel.objects.Prism(speed, universe.C, time_interval, square_polyline + birth_of_green_cube[:2], (0, 1, 0))
+universe += rel.objects.Prism(universe, None,  time_interval, square_polyline + birth_of_red_cube  [:2], (1, 0, 0))
+universe += rel.objects.Prism(universe, speed, time_interval, square_polyline + birth_of_green_cube[:2], (0, 1, 0))
 
 print(birth_of_red_cube)
 
 
-universe += rel.objects.Chronometer(None,  universe.C, birth_of_red_cube,   tick_period, duration, (1, .75, .75))
-universe += rel.objects.Chronometer(speed, universe.C, birth_of_green_cube, tick_period, duration, (.75, 1, .75)) 
+universe += rel.objects.Chronometer(universe, None,  birth_of_red_cube,   tick_period, duration, (1, .75, .75))
+universe += rel.objects.Chronometer(universe, speed, birth_of_green_cube, tick_period, duration, (.75, 1, .75)) 
 
 # Let us bind the space key to a change of reference frame.
 

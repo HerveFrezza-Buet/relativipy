@@ -16,12 +16,12 @@ xyCt_events_R0 = xyt_events_R0 * np.array([1, 1, C])
 # expressed as xyCT in R1
 L = rel.lorentz.direct(S, C)
 
-xyCt_events_R1 = rel.lorentz.transform(L, xyCt_events_R0)
+xyCt_events_R1 = rel.spacetime.transform(L, xyCt_events_R0)
 
 # iL transorm xyCT events expressed in R1 into the same events but
 # expressed as xyCT in R0
 iL = rel.lorentz.inverse(S, C) # This is rel.lorentz.direct(-S, C)
-print('This should be close to 0 : {}'.format(np.max(rel.lorentz.transform(iL, xyCt_events_R1) - xyCt_events_R0)))
+print('This should be close to 0 : {}'.format(np.max(rel.spacetime.transform(iL, xyCt_events_R1) - xyCt_events_R0)))
 
 
 
