@@ -1,7 +1,7 @@
 import relativipy as rel
 import numpy as np
 
-universe = rel.scene.Universe(screen_size = (11, 11), width=800, height=450)
+universe = rel.universe.Relativist(screen_size = (11, 11), width=800, height=450)
 universe.spacetime_mode = False
 universe.axes_origin    = None
 universe.screen_mode    = False
@@ -11,8 +11,8 @@ cross_radius = .2
 
 radius = .5
 points = np.array([(0, -radius), (0, radius)])
-universe += rel.objects.Points(None,  universe.C, (None, None), points, (.7, .7, 1))
-universe += rel.objects.Chronometer(None, universe.C, (0, 0, 0), .25, 10, (1, .7, .7))
+universe += rel.objects.Points(universe, None,  (None, None), points, (.7, .7, 1))
+universe += rel.objects.Chronometer(universe, None, (0, 0, 0), .25, 10, (1, .7, .7))
 
 dt = 2 * radius * universe.C
 t0 = .5
@@ -21,13 +21,13 @@ events = np.array([(0, -radius, t0       ),
                    (0, -radius, t0 + 2*dt),
                    (0,  radius, t0 + 3*dt),
                    (0, -radius, t0 + 4*dt)])
-evts = rel.objects.Events(None, universe.C, events, (0, 0, 0))
+evts = rel.objects.Events(universe, None, events, (0, 0, 0))
 universe += evts
 evts.cross_radius       = cross_radius
 evts.slice_cross_radius = 2 * cross_radius
 
 for begin, end in zip(evts.events[:-1], evts.events[1:]):
-    universe += rel.objects.LightCone(universe.C, begin, end, (.7, .7, 0))
+    universe += rel.objects.LightCone(universe, begin, end, (.7, .7, 0))
 
 
 

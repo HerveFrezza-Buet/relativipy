@@ -1,7 +1,7 @@
 import relativipy as rel
 import numpy as np
 
-universe = rel.scene.Universe(screen_size = (10, 10), width=800, height=450)
+universe = rel.universe.Relativist(screen_size = (10, 10), width=800, height=450)
 universe.spacetime_mode = True
 universe.axes_origin    = None
 universe.screen_mode    = False
@@ -13,17 +13,17 @@ def make_cone(start_event, radius):
     global universe
     nb_points = 20
     events = np.array([[np.cos(t), np.sin(t), radius/universe.C] for t in np.linspace(0, 2*np.pi, nb_points, endpoint=False)]) * np.array([radius, radius, 1]) + start_event
-    evts = rel.objects.Events(None, universe.C, events, (0, 0, .7))
+    evts = rel.objects.Events(universe, None, events, (0, 0, .7))
     universe += evts
     evts.cross_radius       = cross_radius
     evts.slice_cross_radius = 2 * cross_radius
 
-    main = rel.objects.Events(None, universe.C, np.array([(0, 0, 0), (0, 0, 2*radius/universe.C)]) + start_event, (0, 0, 0))
+    main = rel.objects.Events(universe, None, np.array([(0, 0, 0), (0, 0, 2*radius/universe.C)]) + start_event, (0, 0, 0))
     universe += main
     main.cross_radius       = cross_radius
     main.slice_cross_radius = 2 * cross_radius
 
-    universe += rel.objects.LightCone(universe.C, main.events[0], main.events[1], (.7, .7, 0))
+    universe += rel.objects.LightCone(universe, main.events[0], main.events[1], (.7, .7, 0))
 
     
 R = np.linspace(-2, 2, 3)
