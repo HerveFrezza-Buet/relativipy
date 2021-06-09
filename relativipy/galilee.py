@@ -9,9 +9,9 @@ def direct(speed, C) :
             where [x', y', ct'] are the coordinates in the moving referential.
     """
     
-    return np.array([[1, 0, -speed[0]/C],
-                     [0, 1, -speed[1]/C],
-                     [0, 0,           1]])
+    return np.array([[1., 0., -speed[0]/C],
+                     [0., 1., -speed[1]/C],
+                     [0., 0.,           1.]])
 
 def inverse(speed, C) :
     return direct(-speed, C)

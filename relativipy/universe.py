@@ -462,7 +462,9 @@ class Universe:
         self.screen['ct_max']  = self.ct_max
         self.frame['ct_max']   = self.ct_max
 
-        M = self.transframe.T
+        M  = self.transframe
+        MT = self.transframe.T
+        
 
             
         for n in self.notifiers:
@@ -471,14 +473,14 @@ class Universe:
         for p in self.prisms :
             p.quads_program['half_screen_size'] = w, h
             p.quads_program['ct_max']           = self.ct_max
-            p.quads_program['transframe']       = M
+            p.quads_program['transframe']       = MT
 
         if self.spacetime_mode:
-            self.set_spacetime_programs_data(w, h, M)
+            self.set_spacetime_programs_data(w, h, M, MT)
         else:
-            self.set_time_programs_data(w, h, M)
+            self.set_time_programs_data(w, h, M, MT)
 
-    def set_spacetime_programs_data(self, w, h, M):
+    def set_spacetime_programs_data(self, w, h, M, MT):
         self.s_axes['ct']      = self.ct
         self.s_axes['ct_max']  = self.ct_max
 
@@ -486,12 +488,12 @@ class Universe:
             for p in self.persistants :
                 p.lines_program['half_screen_size'] = w, h
                 p.lines_program['ct_max']           = self.ct_max
-                p.lines_program['transframe']       = M
+                p.lines_program['transframe']       = MT
         else:
             for p in self.points :
                 p.lines_program['half_screen_size'] = w, h
                 p.lines_program['ct_max']           = self.ct_max
-                p.lines_program['transframe']       = M
+                p.lines_program['transframe']       = MT
             
         for p in self.prisms :
             p.s_slice_program['half_screen_size'] = w, h
@@ -520,7 +522,7 @@ class Universe:
             l.s_slice_program['ct_max']           = self.ct_max
             l.s_slice_program['pos']              = l.current_slice(M, self.C, self.ct)
 
-    def set_time_programs_data(self, w, h, M):
+    def set_time_programs_data(self, w, h, M, MT):
         self.t_axes['scale'] = self.scale
         self.t_axes['trans'] = self.trans
         
