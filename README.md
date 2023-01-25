@@ -28,6 +28,13 @@ and for Fedora users,
 dnf install glfw
 ```
 
+Then you will need the following python installs
+
+```
+pip3 install glfw
+pip3 install pyopengl
+```
+
 This is an example of a glumpy installation on your computer from the sources.
 
 ```
